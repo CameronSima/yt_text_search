@@ -1,0 +1,4 @@
+[scripts]
+test = "python -m pytest"
+
+"start:dev" = "uvicorn main:app --reload"

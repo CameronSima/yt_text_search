@@ -1,0 +1,82 @@
+{% extends "index.jinja2" %} {% block content %}
+
+<!-- 1. The <iframe> (and video player) will replace this <div> tag. -->
+
+<script>
+    // 2. This code loads the IFrame Player API code asynchronously.
+    var tag = document.createElement('script');
+
+    tag.src = "https://www.youtube.com/iframe_api";
+    var firstScriptTag = document.getElementsByTagName('script')[0];
+    firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+
+    // 3. This function creates an <iframe> (and YouTube player)
+    //    after the API code downloads.
+    var player;
+    function onYouTubeIframeAPIReady() {
+        player = new YT.Player('player', {
+            height: '390',
+            width: '100%',
+            videoId: "{{ result.video.id }}",
+            playerVars: {
+                'playsinline': 1
+            },
+            events: {
+                'onReady': onPlayerReady,
+                'onStateChange': onPlayerStateChange
+            }
+        });
+    }
+
+    // 4. The API will call this function when the video player is ready.
+    function onPlayerReady(event) {
+        event.target.playVideo();
+    }
+
+    // 5. The API calls this function when the player's state changes.
+    //    The function indicates that when playing a video (state=1)
+    function onPlayerStateChange(event) {
+        console.log("state change", event.data)
+    }
+
+    function seek(seconds) {
+        if (player) {
+            player.seekTo(seconds, true);
+        }
+    }
+</script>
+
+{% if result.num_results == 0 %}
+<div>
+    <h2 class="text-gray-100 text-2xl underline my-6">No results found for
+        <span class="font-bold italic">"{{result.search_text}}"</span>
+    </h2>
+</div>
+{% else %}
+
+<div class="flex flex-col h-screen gap-4">
+    <div id="player" class="grow"></div>
+    <div class="overflow-y-scroll">
+        <div x-data="{ selected: undefined }" class="flex flex-col gap-4">
+            {% for match in result.matches %}
+            <div class="w-full overflow-hidden shadow-lg cursor-pointer" x-on:click="selected = {{match.id}}"
+                x-bind:class="selected == {{match.id}} ? 'bg-gray-400 hover:bg-gray-400' : 'bg-white hover:bg-gray-200'"
+                onclick="seek({{match.start_seconds}})">
+                <div class="px-6 py-4">
+                    <p class="text-gray-800 text-base italic">
+                        "...
+                        {{match.preceding_text}}
+                        <span class="font-bold">{{match.exact_text}}</span>
+                        {{match.following_text}}
+                        ..."
+                    </p>
+                    <p class="text-gray-500">{{helpers.format_time(match.start_seconds)}}</p>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endif %}
+
+{% endblock %}
