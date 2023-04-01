@@ -46,16 +46,22 @@
     }
 </script>
 
-{% if result.num_results == 0 %}
-<div>
-    <h2 class="text-gray-100 text-2xl underline my-6">No results found for
-        <span class="font-bold italic">"{{result.search_text}}"</span>
-    </h2>
-</div>
-{% else %}
+
 
 <div class="flex flex-col h-screen gap-4">
+
+    {% if result.num_results == 0 %}
+    <div>
+        <h2 class="text-gray-100 text-2xl underline my-6">No results found for
+            <span class="font-bold italic">"{{result.search_text}}"</span>
+        </h2>
+    </div>
+    {% else %}
+
     <div id="player" class="grow"></div>
+    <h2 class="text-gray-100 text-2xl underline my-6">{{ result.num_results }} results found for
+        <span class="font-bold italic">"{{result.search_text}}"</span>
+    </h2>
     <div class="overflow-y-scroll">
         <div x-data="{ selected: undefined }" class="flex flex-col gap-4">
             {% for match in result.matches %}
