@@ -2,4 +2,4 @@
 test = "python -m pytest"
 
 "start:dev" = "uvicorn main:app --reload"
-start = "uvicorn main:app"
+start = "uvicorn main:app --port $PORT"
