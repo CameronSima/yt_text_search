@@ -7,7 +7,7 @@ import template_helpers as helpers
 
 app = FastAPI()
 app.mount(
-    "/static", StaticFiles(directory=("static"), name="static")
+    "/static", StaticFiles(directory="static")
 )
 templates = Jinja2Templates(directory="templates")
 render = templates.TemplateResponse
