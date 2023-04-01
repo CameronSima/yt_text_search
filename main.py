@@ -31,3 +31,8 @@ def get_search_video(video_id: str, text: str, request: Request):
         "result": result,
         "helpers": helpers
     })
+
+
+@app.get("/health")
+def health():
+    return {"status": "ok"}
