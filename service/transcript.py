@@ -80,8 +80,11 @@ class Transcript:
         self._fetch_transcript()
 
     def _fetch_transcript(self):
-        self._raw_transcript = YouTubeTranscriptApi.get_transcript(
-            self.video_id)
+        try:
+            self._raw_transcript = YouTubeTranscriptApi.get_transcript(
+                self.video_id)
+        except:
+            self._raw_transcript = []
 
     def process(self):
         num_bookends = 1
