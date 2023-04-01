@@ -1,4 +1,3 @@
-import os
 from fastapi import FastAPI, Request
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
@@ -8,18 +7,18 @@ import template_helpers as helpers
 
 app = FastAPI()
 app.mount(
-    "/static", StaticFiles(directory=os.path.abspath('./static')), name="static")
-
+    "/static", StaticFiles(directory=("static"), name="static")
+)
 templates = Jinja2Templates(directory="templates")
 render = templates.TemplateResponse
 
 
-@app.get("/")
+@ app.get("/")
 def read_root(request: Request):
     return render("home.jinja2", {"request": request, "id": id})
 
 
-@app.get("/search_video")
+@ app.get("/search_video")
 def get_search_video(video_id: str, text: str, request: Request):
 
     if video_id.find('watch?v=') != -1:
@@ -33,6 +32,6 @@ def get_search_video(video_id: str, text: str, request: Request):
     })
 
 
-@app.get("/health")
+@ app.get("/health")
 def health():
     return {"status": "ok"}
