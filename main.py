@@ -1,6 +1,5 @@
-from typing import Union
-from fastapi import FastAPI, Request, Form
-from fastapi.responses import RedirectResponse
+import os
+from fastapi import FastAPI, Request
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from service.search import search_video
@@ -8,7 +7,8 @@ import template_helpers as helpers
 
 
 app = FastAPI()
-app.mount("/static", StaticFiles(directory="./static"), name="static")
+app.mount(
+    "/static", StaticFiles(directory=os.path.abspath('./static')), name="static")
 
 templates = Jinja2Templates(directory="templates")
 render = templates.TemplateResponse
