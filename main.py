@@ -38,6 +38,12 @@ def get_search_video(video_id: str, text: str, request: Request):
     return render("video_results.jinja2", context)
 
 
+@app.get("/api/yt_sub")
+def sub_callback(request: Request):
+    log(f"Received sub callback {request}")
+    return {"status": "ok"}
+
+
 @ app.get("/health")
 def health():
     return {"status": "ok"}

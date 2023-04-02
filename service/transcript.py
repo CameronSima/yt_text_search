@@ -61,6 +61,8 @@ def build_match(search_text: str, segments: list[TextSegment]) -> Match:
         preceding_text=preceding.strip(),
         exact_text=exact.strip(),
         following_text=following.strip(),
+
+        # add a 2 second buffer as lead in
         start_seconds=first_segment.start_rounded() - 2,
         end_seconds=last_segment.end_rounded(),
     )
