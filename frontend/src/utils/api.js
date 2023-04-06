@@ -1,6 +1,6 @@
 export const API_URL =
   process.env.NODE_ENV === "production"
-    ? "https://yttextsearch-production.up.railway.app/"
+    ? "https://yttextsearch-production.up.railway.app/api/"
     : "http://localhost:8000/api/";
 
 export function post(path, data) {
