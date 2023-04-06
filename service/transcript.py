@@ -1,8 +1,7 @@
 import math
 from dataclasses import dataclass
 from youtube_transcript_api import YouTubeTranscriptApi
-
-from service.utils import get_matched_indexes
+from service.utils import get_matched_indexes, format_time
 
 
 @dataclass
@@ -33,6 +32,18 @@ class Match:
     start_seconds: int
     end_seconds: int
 
+    def json(self):
+        return {
+            'id': self.id,
+            'preceding_text': self.preceding_text,
+            'exact_text': self.exact_text,
+            'following_text': self.following_text,
+            'start_seconds': self.start_seconds,
+            'end_seconds': self.end_seconds,
+            'start_seconds_formatted': format_time(self.start_seconds),
+            'end_seconds_formatted': format_time(self.end_seconds),
+        }
+
 
 def build_match(search_text: str, segments: list[TextSegment]) -> Match:
     """Split text into preceding, exact matching, and following"""
@@ -48,7 +59,7 @@ def build_match(search_text: str, segments: list[TextSegment]) -> Match:
         main_text_original + ' ' + following_text
 
     # find indexes of the search text in the full text, with lowercase matching
-    indexes = get_matched_indexes(full_text, search_text)
+    indexes = get_matched_indexes(full_text, search_text.lower())
 
     # split the text into preceding, exact matching, and following from
     # the original text

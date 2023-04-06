@@ -10,6 +10,9 @@ MAX_RESULTS = 50
 @dataclass
 class Video:
     id: str
+    title: str
+    description: str
+    published_at: str
 
     def url(self):
         return f"https://www.youtube.com/watch?v={self.id}"
@@ -20,6 +23,9 @@ class Video:
     def json(self):
         return {
             'id': self.id,
+            'title': self.title,
+            'description': self.description,
+            'published_at': self.published_at,
             'url': self.url(),
         }
 
@@ -27,7 +33,10 @@ class Video:
 def _get_channel_playlist_id(channel_name: str) -> list[dict]:
     url = f"https://www.googleapis.com/youtube/v3/channels?part=contentDetails&forUsername={channel_name}&key={API_KEY}"
     response = requests.get(url)
-    data = response.json()['items']
+    data_json = response.json()
+    print(data_json)
+    data = data_json['items']
+
     return data[0]['contentDetails']['relatedPlaylists']['uploads']
 
 
@@ -60,12 +69,11 @@ class ChannelVideos:
     def get_channel_videos(self, page_token=None) -> tuple[list[Video], str]:
         videos_json = _get_videos(self.channel_playlist_id, page_token)
         self.next_page_token = videos_json.get('nextPageToken')
-        print("NEXT PAGE TOKEN: ", self.next_page_token)
         videos = videos_json.get('items')
 
         return [Video(
             title=video['snippet']['title'],
-            publishedAt=video['snippet']['publishedAt'],
+            published_at=video['snippet']['publishedAt'],
             description=video['snippet']['description'],
             id=video['snippet']['resourceId']['videoId']
         ) for video in videos]

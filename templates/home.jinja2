@@ -2,7 +2,7 @@
 {% block content %}
 <div class="flex flex-col justify-around h-screen">
   <h1 class="text-4xl text-center text-white">Search for text in a youtube video</h1>
-  <form class="flex flex-col gap-y-4" action="/search_video">
+  <form x-data="{ disabled: true }" class="flex flex-col gap-y-4" action="/search_video">
     <input
       class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
       id="video_id" name="video_id" type="text" placeholder="Youtube video url">

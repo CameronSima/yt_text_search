@@ -1,0 +1,21 @@
+{% extends "index.jinja2" %} {% block content %}
+
+
+
+<div class="flex flex-col h-screen gap-4">
+    <div id="results_container" class="overflow-scroll">
+    </div>
+</div>
+
+<script>
+    const eventSource = new EventSource("/api/search_channel?channel_name=proguide66&text=sasquatch");
+    eventSource.onmessage = function (event) {
+        console.log(event.data);
+        const el = document.createElement("div");
+        el.innerHTML = event.data;
+        document.getElementById("results_contailer").appendChild(el);
+    }
+
+</script>
+
+{% endblock %}

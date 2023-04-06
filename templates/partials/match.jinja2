@@ -1,0 +1,14 @@
+<div class="w-full overflow-hidden shadow-lg cursor-pointer" x-on:click="selected = {{match.id}}"
+    x-bind:class="selected == {{match.id}} ? 'bg-gray-400 hover:bg-gray-400' : 'bg-white hover:bg-gray-200'"
+    onclick="seek({{match.start_seconds}})">
+    <div class="px-6 py-4">
+        <p class="text-gray-800 text-base italic">
+            "...
+            {{match.preceding_text}}
+            <span class="font-bold">{{match.exact_text}}</span>
+            {{match.following_text}}
+            ..."
+        </p>
+        <p class="text-gray-500">{{helpers.format_time(match.start_seconds)}}</p>
+    </div>
+</div>
