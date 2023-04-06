@@ -37,7 +37,7 @@ api_app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
 
 @ api_app.get("/search_video")
-@limiter.limit("10/minute")
+@limiter.limit("20/minute")
 def get_search_video(video_id: str, text: str, request: Request):
     video_id = clean_video_id(video_id)
     log(f"Searching video {video_id} for {text}")
