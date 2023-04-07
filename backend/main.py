@@ -71,7 +71,7 @@ async def yt_sub(request: Request):
 
 @app.post("/yt_sub")
 async def sub_callback(request: Request):
-    data = await request.json()
+    data = await request.body()
     log(f"Received sub callback {data}")
     parsed = parse_notification(data)
     log(f"Parsed sub callback {parsed}")
@@ -81,6 +81,3 @@ async def sub_callback(request: Request):
 @ app.get("/health")
 def health():
     return {"status": "ok"}
-
-
-app.mount("/api", app, name="api")
