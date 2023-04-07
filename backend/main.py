@@ -1,5 +1,5 @@
 import json
-from fastapi import FastAPI, Query, Request
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from sse_starlette.sse import EventSourceResponse
 from slowapi.errors import RateLimitExceeded
@@ -57,11 +57,11 @@ def get_search_channel_data(channel_name: str, text: str, request: Request):
 
 
 @app.get("/yt_sub")
-async def yt_sub(
-        hub_topic: str = Query(None),
-        hub_challenge: str = Query(None),
-        hub_mode: str = Query(None),
-        hub_lease_seconds: int = Query(None)):
+async def yt_sub(request: Request):
+    hub_topic = request.params.get("hub.topic")
+    hub_challenge = request.params.get("hub.challenge")
+    hub_mode = request.params.get("hub.mode")
+    hub_lease_seconds = request.params.get("hub.lease_seconds")
 
     print({"hub_topic": hub_topic, "hub_challenge": hub_challenge,
           "hub_mode": hub_mode, "hub_lease_seconds": hub_lease_seconds})
