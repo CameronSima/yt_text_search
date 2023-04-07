@@ -58,10 +58,11 @@ def get_search_channel_data(channel_name: str, text: str, request: Request):
 
 @app.get("/yt_sub")
 async def yt_sub(request: Request):
-    hub_topic = request.params.get("hub.topic")
-    hub_challenge = request.params.get("hub.challenge")
-    hub_mode = request.params.get("hub.mode")
-    hub_lease_seconds = request.params.get("hub.lease_seconds")
+    params = request.query_params
+    hub_topic = params.get("hub.topic")
+    hub_challenge = params.get("hub.challenge")
+    hub_mode = params.get("hub.mode")
+    hub_lease_seconds = params.get("hub.lease_seconds")
 
     print({"hub_topic": hub_topic, "hub_challenge": hub_challenge,
           "hub_mode": hub_mode, "hub_lease_seconds": hub_lease_seconds})
