@@ -29,10 +29,22 @@ def parse_notification(data: str):
     entry = root.find('{http://www.w3.org/2005/Atom}entry')
     video_id = entry.find(
         '{http://www.youtube.com/xml/schemas/2015}videoId').text
+    channel_id = entry.find(
+        '{http://www.youtube.com/xml/schemas/2015}channelId').text
+    url = entry.find('{http://www.w3.org/2005/Atom}link').attrib['href']
+    title = entry.find('{http://www.w3.org/2005/Atom}title').text
+
     return {
-        "video_id": video_id
+        "video_id": video_id,
+        "channel_id": channel_id,
+        "url": url,
+        "title": title
     }
 
 
 if __name__ == '__main__':
-    subscribe("UCg40OxZ1GYh3u3jBntB6DLg")
+    forbes = 'UCg40OxZ1GYh3u3jBntB6DLg'
+    howtohunt = 'UCALaO58yDzt0djpHNGZqCDA'
+    battleshipnj = 'UC_Ftxa2jwg8R4IWDw48uyBw'
+    for channel in [forbes, howtohunt, battleshipnj]:
+        subscribe(channel)
