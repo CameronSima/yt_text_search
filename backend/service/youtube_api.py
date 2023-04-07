@@ -30,13 +30,19 @@ class Video:
         }
 
 
+def get_channel_id(username):
+    url = f"https://www.googleapis.com/youtube/v3/channels?key={API_KEY}&forUsername={username}&part=id"
+    response = requests.get(url)
+    data = response.json()
+    return data['items'][0]['id']
+
+
 def _get_channel_playlist_id(channel_name: str) -> list[dict]:
     url = f"https://www.googleapis.com/youtube/v3/channels?part=contentDetails&forUsername={channel_name}&key={API_KEY}"
     response = requests.get(url)
     data_json = response.json()
     print(data_json)
     data = data_json['items']
-
     return data[0]['contentDetails']['relatedPlaylists']['uploads']
 
 
@@ -77,3 +83,6 @@ class ChannelVideos:
             description=video['snippet']['description'],
             id=video['snippet']['resourceId']['videoId']
         ) for video in videos]
+
+
+print(get_channel_id('proguide66'))

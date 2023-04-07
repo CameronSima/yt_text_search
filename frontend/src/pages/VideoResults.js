@@ -29,7 +29,7 @@ function VideoResults() {
     const text = searchParams.get("text");
     if (!videoId || !text) return;
 
-    get("search_video/?" + searchParams.toString(), { video_id: videoId, text })
+    get("search_video?" + searchParams.toString(), { video_id: videoId, text })
       .then((data) => {
         console.log(data);
         return data.json();

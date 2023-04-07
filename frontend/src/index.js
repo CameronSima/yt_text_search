@@ -4,7 +4,7 @@ import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import "./index.css";
 import App from "./App";
 import reportWebVitals from "./reportWebVitals";
-import SearchVideo from "./SearchVideo";
+import SearchVideo from "./pages/SearchVideo";
 import VideoResults from "./pages/VideoResults";
 import ChannelResults from "./pages/ChannelResults";
 
