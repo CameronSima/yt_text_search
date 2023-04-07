@@ -56,6 +56,12 @@ def get_search_channel_data(channel_name: str, text: str, request: Request):
     return EventSourceResponse(results)
 
 
+@app.get('/yt_sub')
+async def yt_sub_authorization(hub: dict):
+    print(hub)
+    return {"status": "ok"}
+
+
 @app.post("/yt_sub")
 async def sub_callback(request: Request):
     data = await request.json()
