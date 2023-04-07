@@ -1,5 +1,5 @@
 import json
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
 from sse_starlette.sse import EventSourceResponse
 from slowapi.errors import RateLimitExceeded
@@ -48,7 +48,7 @@ def get_search_video(video_id: str, text: str, request: Request):
 def get_search_channel_data(channel_name: str, text: str, request: Request):
 
     # strip @ from channel name
-    if channel_name[0] == '@':
+    if channel_name.startswith('@'):
         channel_name = channel_name[1:]
 
     log(f"Searching channel {channel_name} for {text}")
@@ -66,7 +66,7 @@ async def yt_sub(request: Request):
 
     print({"hub_topic": hub_topic, "hub_challenge": hub_challenge,
           "hub_mode": hub_mode, "hub_lease_seconds": hub_lease_seconds})
-    return hub_challenge
+    return Response(content=hub_challenge, media_type="text/plain", status_code=200)
 
 
 @app.post("/yt_sub")

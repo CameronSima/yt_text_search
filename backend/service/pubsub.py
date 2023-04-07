@@ -35,4 +35,4 @@ def parse_notification(data: str):
 
 
 if __name__ == '__main__':
-    subscribe("UCALaO58yDzt0djpHNGZqCDA")
+    subscribe("UC_Ftxa2jwg8R4IWDw48uyBw")

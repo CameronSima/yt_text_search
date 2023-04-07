@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 import requests
+import re
 
 from service.transcript import TextSegment
 
@@ -31,10 +32,19 @@ class Video:
 
 
 def get_channel_id(username):
-    url = f"https://www.googleapis.com/youtube/v3/channels?key={API_KEY}&forUsername={username}&part=id"
-    response = requests.get(url)
-    data = response.json()
-    return data['items'][0]['id']
+
+    if username.startswith('@'):
+        username = username[1:]
+
+    url = f"https://www.youtube.com/@{username}"
+    page_source = requests.get(url).text
+    match = re.search(r'"externalId":"([\w-]+)"', page_source)
+
+    if match:
+        external_id = match.group(1)
+        print(external_id)
+    else:
+        print('External ID not found')
 
 
 def _get_channel_playlist_id(channel_name: str) -> list[dict]:
@@ -83,6 +93,3 @@ class ChannelVideos:
             description=video['snippet']['description'],
             id=video['snippet']['resourceId']['videoId']
         ) for video in videos]
-
-
-print(get_channel_id('proguide66'))
