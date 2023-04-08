@@ -9,6 +9,7 @@ from service.search import search_video, search_channel
 from service.logger import log
 from service.pubsub import parse_notification
 from service.utils import clean_video_id
+from db.models.video import Video
 
 
 origins = [
@@ -74,6 +75,7 @@ async def sub_callback(request: Request):
     data = await request.body()
     log(f"Received sub callback {data}")
     parsed = parse_notification(data)
+    await Video.create(**parsed)
     log(f"Parsed sub callback {parsed}")
     return {"status": "ok"}
 

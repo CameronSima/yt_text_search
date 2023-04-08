@@ -26,7 +26,8 @@ def test_parse_notification():
     """
 
     result = parse_notification(data)
-    assert result['video_id'] == 'N3D2D91NBzA'
-    assert result['channel_id'] == 'CHANNEL_ID'
+    assert result['yt_video_id'] == 'N3D2D91NBzA'
+    assert result['yt_channel_id'] == 'CHANNEL_ID'
     assert result['url'] == 'http://www.youtube.com/watch?v=VIDEO_ID'
     assert result['title'] == 'Video title'
+    assert result['published_at'] == '2015-03-06T21:40:57+00:00'

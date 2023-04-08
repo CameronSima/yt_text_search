@@ -27,18 +27,20 @@ def subscribe(channel_id: str):
 def parse_notification(data: str):
     root = ET.fromstring(data)
     entry = root.find('{http://www.w3.org/2005/Atom}entry')
-    video_id = entry.find(
+    yt_video_id = entry.find(
         '{http://www.youtube.com/xml/schemas/2015}videoId').text
-    channel_id = entry.find(
+    yt_channel_id = entry.find(
         '{http://www.youtube.com/xml/schemas/2015}channelId').text
     url = entry.find('{http://www.w3.org/2005/Atom}link').attrib['href']
     title = entry.find('{http://www.w3.org/2005/Atom}title').text
+    published_at = entry.find('{http://www.w3.org/2005/Atom}published').text
 
     return {
-        "video_id": video_id,
-        "channel_id": channel_id,
+        "yt_video_id": yt_video_id,
+        "yt_channel_id": yt_channel_id,
         "url": url,
-        "title": title
+        "title": title,
+        "published_at": published_at
     }
 
 

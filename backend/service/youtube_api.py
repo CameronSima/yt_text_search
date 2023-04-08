@@ -3,8 +3,8 @@ import requests
 import re
 
 from service.transcript import TextSegment
+from constants import YOUTUBE_API_KEY
 
-API_KEY = "AIzaSyBDHVhZFnS3BR7VvB2k32rGbZHHF8NO38s"
 MAX_RESULTS = 50
 
 
@@ -48,7 +48,7 @@ def get_channel_id(username):
 
 
 def _get_channel_playlist_id(channel_name: str) -> list[dict]:
-    url = f"https://www.googleapis.com/youtube/v3/channels?part=contentDetails&forUsername={channel_name}&key={API_KEY}"
+    url = f"https://www.googleapis.com/youtube/v3/channels?part=contentDetails&forUsername={channel_name}&key={YOUTUBE_API_KEY}"
     response = requests.get(url)
     data_json = response.json()
     print(data_json)
@@ -57,7 +57,7 @@ def _get_channel_playlist_id(channel_name: str) -> list[dict]:
 
 
 def _get_videos(playlists_id: str, page_token: str or None) -> tuple[list[dict], str]:
-    url = f"https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&maxResults={MAX_RESULTS}&playlistId={playlists_id}&key={API_KEY}"
+    url = f"https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&maxResults={MAX_RESULTS}&playlistId={playlists_id}&key={YOUTUBE_API_KEY}"
 
     if page_token:
         url += f"&pageToken={page_token}"
