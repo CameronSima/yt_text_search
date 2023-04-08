@@ -4,7 +4,6 @@ from constants import DATABASE_PASSWORD, DATABASE_HOST, DATABASE_USERNAME, DATAB
 
 def connection_str(user, password, host, database):
     return f'mysql://{user}:{password}@{host}/{database}?ssl=True'
-    # return f'mysql://dfm29o9xvqvwskcxo5kv:************@aws.connect.psdb.cloud/cam_mysql?sslaccept=strict'
 
 
 async def init():
@@ -15,6 +14,9 @@ async def init():
         db_url=db_url,
         modules={'models': ['db.models.video']}
     )
+
+
+async def generate_schema():
     # Generate the schema
     await Tortoise.generate_schemas()
 

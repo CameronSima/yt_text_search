@@ -1,6 +1,7 @@
 import json
 from fastapi import FastAPI, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
+from tortoise import run_async
 from sse_starlette.sse import EventSourceResponse
 from slowapi.errors import RateLimitExceeded
 from slowapi import Limiter, _rate_limit_exceeded_handler
@@ -9,6 +10,7 @@ from service.search import search_video, search_channel
 from service.logger import log
 from service.pubsub import parse_notification
 from service.utils import clean_video_id
+from init_db import init as init_db
 from db.models.video import Video
 
 
@@ -19,6 +21,8 @@ origins = [
     "https://yttextsearch-production.up.railway.app",
     "https://yt-text-search.vercel.app"
 ]
+
+init_db()
 
 limiter = Limiter(key_func=get_remote_address)
 app = FastAPI()
