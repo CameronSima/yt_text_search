@@ -1,4 +1,5 @@
 import math
+from typing import TypedDict
 from dataclasses import dataclass
 from youtube_transcript_api import YouTubeTranscriptApi
 from service.utils import get_matched_indexes, format_time
@@ -150,3 +151,51 @@ class Transcript:
             match = build_match(text, matching_segments)
             matches.append(match)
         return matches
+
+
+class RawSegment(TypedDict):
+    start: float
+    duration: float
+    text: str
+
+
+def build_segments(raw_segments: list[RawSegment], num_bookends=1) -> dict:
+    segments = []
+    full_text = ''
+    char_index = 0
+
+    num_segments = len(raw_segments)
+    for i, segment in enumerate(raw_segments):
+
+        # add space to preserve word boundaries
+        text = segment['text'] + ' '
+        i_end = char_index + len(text)
+        segment_obj = TextSegment(
+            id=i,
+            text=text.lower(),
+            original_text=text,
+            start=segment['start'],
+            duration=segment['duration'],
+            i_start=char_index,
+            i_end=i_end,
+            text_preceding=[],
+            text_following=[],
+        )
+
+        # add some text on either end of the matching text
+        # for context
+        if i >= num_bookends:
+            preceding = raw_segments[i - num_bookends: i]
+            segment_obj.text_preceding += [x['text'] for x in preceding]
+        if i < num_segments - num_bookends:
+            following = raw_segments[i + 1: i + num_bookends + 1]
+            segment_obj.text_following += [x['text'] for x in following]
+
+        segments.append(segment_obj)
+        full_text += segment_obj.text
+        char_index = i_end
+
+    return {
+        'segments': segments,
+        'full_text': full_text,
+    }

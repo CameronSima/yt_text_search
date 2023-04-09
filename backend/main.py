@@ -1,15 +1,14 @@
 import json
 from fastapi import FastAPI, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
-from tortoise import run_async
 from sse_starlette.sse import EventSourceResponse
 from slowapi.errors import RateLimitExceeded
 from slowapi import Limiter, _rate_limit_exceeded_handler
 from slowapi.util import get_remote_address
 from service.search import search_video, search_channel
-from service.logger import log
+from service import logger
 from service.pubsub import parse_notification
-from service.utils import clean_video_id
+from service.utils import clean_video_id, clean_channel_name
 from init_db import init as init_db
 from db.models.video import Video
 
@@ -43,7 +42,7 @@ app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 @limiter.limit("20/minute")
 def get_search_video(video_id: str, text: str, request: Request):
     video_id = clean_video_id(video_id)
-    log(f"Searching video {video_id} for {text}")
+    logger.info({"video_id": video_id, "text": text})
     results = search_video(video_id, text)
     return results.json()
 
@@ -51,12 +50,9 @@ def get_search_video(video_id: str, text: str, request: Request):
 @app.get("/search_channel")
 @limiter.limit("20/minute")
 def get_search_channel_data(channel_name: str, text: str, request: Request):
+    channel_name = clean_channel_name(channel_name)
 
-    # strip @ from channel name
-    if channel_name.startswith('@'):
-        channel_name = channel_name[1:]
-
-    log(f"Searching channel {channel_name} for {text}")
+    logger.info(f"Searching channel {channel_name} for {text}")
     results = map(json.dumps, search_channel(channel_name, text))
     return EventSourceResponse(results)
 
@@ -77,10 +73,9 @@ async def yt_sub(request: Request):
 @app.post("/yt_sub")
 async def sub_callback(request: Request):
     data = await request.body()
-    log(f"Received sub callback {data}")
     parsed = parse_notification(data)
     await Video.create(**parsed)
-    log(f"Parsed sub callback {parsed}")
+    logger.info(parsed)
     return {"status": "ok"}
 
 

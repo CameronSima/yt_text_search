@@ -25,3 +25,20 @@ def clean_video_id(video_id_or_url) -> str:
             return video_id_or_url.replace(url, '')
 
     return video_id_or_url
+
+
+def clean_channel_name(channel_name: str) -> str:
+    """Return a channel name from a channel name or a channel url"""
+    youtube_urls = [
+        'https://www.youtube.com/channel/',
+        'https://www.youtube.com/c/',
+    ]
+    for url in youtube_urls:
+        if channel_name.startswith(url):
+            return channel_name.replace(url, '')
+
+    # strip @ from channel name
+    if channel_name.startswith('@'):
+        channel_name = channel_name[1:]
+
+    return channel_name
