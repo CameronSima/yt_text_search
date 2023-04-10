@@ -62,7 +62,7 @@ def get_search_channel_data(channel_name: str, text: str, request: Request):
     return EventSourceResponse(results)
 
 
-@app.get("/yt/channel/search")
+@app.get("/channel/search")
 @limiter.limit("20/minute")
 @cache(expire=60 * 60 * 24)
 def get_search_channel_data(channel_name: str, request: Request):
@@ -72,7 +72,7 @@ def get_search_channel_data(channel_name: str, request: Request):
     return results
 
 
-@app.post("/yt/channel/subscribe")
+@app.post("/channel/subscribe")
 @limiter.limit("20/minute")
 async def subscribe_channel(channel_id: str, request: Request):
     pubsub.subscribe(channel_id)
