@@ -5,6 +5,9 @@ from sse_starlette.sse import EventSourceResponse
 from slowapi.errors import RateLimitExceeded
 from slowapi import Limiter, _rate_limit_exceeded_handler
 from slowapi.util import get_remote_address
+from fastapi_cache import FastAPICache
+from fastapi_cache.backends.inmemory import InMemoryBackend
+from fastapi_cache.decorator import cache
 from service.search import search_video, search_channel
 from service import logger
 from service.pubsub import parse_notification
@@ -60,10 +63,11 @@ def get_search_channel_data(channel_name: str, text: str, request: Request):
 
 @app.get("/search_channel_data")
 @limiter.limit("20/minute")
+@cache(expire=60 * 60 * 24)
 def get_search_channel_data(channel_name: str, request: Request):
     channel_name = clean_channel_name(channel_name)
     logger.info(f"Searching channels {channel_name}")
-    results = search_channel(channel_name)
+    results = search_channels(channel_name)
     return results
 
 
@@ -86,6 +90,13 @@ async def yt_sub(request: Request):
 async def sub_callback(request: Request):
     data = await request.body()
     parsed = parse_notification(data)
+    title = parsed.get("title")
+
+    existing_video = await Video.get(title=title)
+    if existing_video:
+        logger.info(f"Video {title} already exists.")
+        return {"status": "ok"}
+
     await Video.create(**parsed)
     logger.info(parsed)
     return {"status": "ok"}
@@ -94,3 +105,8 @@ async def sub_callback(request: Request):
 @ app.get("/health")
 def health():
     return {"status": "ok"}
+
+
+@app.on_event("startup")
+async def startup():
+    FastAPICache.init(InMemoryBackend(), prefix="fastapi-cache")
