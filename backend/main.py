@@ -10,6 +10,7 @@ from fastapi_cache.backends.inmemory import InMemoryBackend
 from fastapi_cache.decorator import cache
 from service.search import search_video, search_channel
 from service import logger
+from service import pubsub
 from service.pubsub import parse_notification
 from service.utils import clean_video_id, clean_channel_name
 from service.youtube_api import search_channels
@@ -61,7 +62,7 @@ def get_search_channel_data(channel_name: str, text: str, request: Request):
     return EventSourceResponse(results)
 
 
-@app.get("/search_channel_data")
+@app.get("/yt/channel/search")
 @limiter.limit("20/minute")
 @cache(expire=60 * 60 * 24)
 def get_search_channel_data(channel_name: str, request: Request):
@@ -71,7 +72,13 @@ def get_search_channel_data(channel_name: str, request: Request):
     return results
 
 
-# Youtube PubSub
+@app.post("/yt/channel/subscribe")
+@limiter.limit("20/minute")
+async def subscribe_channel(channel_id: str, request: Request):
+    pubsub.subscribe(channel_id)
+
+# Youtube PubSub hooks
+
 
 @app.get("/yt_sub")
 async def yt_sub(request: Request):
