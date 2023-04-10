@@ -1,6 +1,7 @@
 from typing import Generator
 from dataclasses import dataclass
-from service.transcript import Match, Transcript
+from youtube_transcript_api import YouTubeTranscriptApi
+from service.transcript import Match, _Transcript, build_transcript, search_transcript
 from .youtube_api import ChannelVideos, Video
 
 
@@ -21,9 +22,14 @@ class SearchResult:
 
 
 def search_video(video_id: str, search_text: str) -> SearchResult:
-    transcript = Transcript(video_id)
-    transcript.process()
-    matches = transcript.search(search_text)
+    """Search a video for a search text"""
+    raw_segments = YouTubeTranscriptApi.get_transcript(video_id)
+    transcript = build_transcript(raw_segments)
+    matches = search_transcript(transcript, search_text)
+
+    # transcript = Transcript(video_id)
+    # transcript.process()
+    # matches = transcript.search(search_text)
     return SearchResult(
         search_text=search_text,
         video=Video(video_id, title='', description='', published_at=''),

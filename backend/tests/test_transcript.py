@@ -1,6 +1,6 @@
 
 import json
-from service.transcript import Transcript
+from service.transcript import build_transcript, search_transcript
 
 
 def open_json(filename):
@@ -11,31 +11,21 @@ def open_json(filename):
 test_data = open_json('./mocks/speedlore.json')['segments']
 
 
-def mock_fetch_raw_transcript(self):
-    self._raw_transcript = test_data
-
-
-Transcript._fetch_transcript = mock_fetch_raw_transcript
-
-
 def test_search():
-    t = Transcript('video_id')
-    t.process()
-    matches = t.search('goldeneye')
+    t = build_transcript(test_data)
+    matches = search_transcript(t, 'goldeneye')
     assert len(matches) == 11
 
 
 def test_search_across_segments():
-    t = Transcript('video_id')
-    t.process()
-    matches = t.search('even as the years')
+    t = build_transcript(test_data)
+    matches = search_transcript(t, 'even as the years')
     assert len(matches) == 1
 
 
 def test_matches():
-    t = Transcript('video_id')
-    t.process()
-    matches = t.search('even as the years')
+    t = build_transcript(test_data)
+    matches = search_transcript(t, 'even as the years')
     match = matches[0]
     print(match)
     assert match.exact_text == 'even as the years'
