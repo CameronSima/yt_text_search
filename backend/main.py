@@ -9,7 +9,8 @@ from service.search import search_video, search_channel
 from service import logger
 from service.pubsub import parse_notification
 from service.utils import clean_video_id, clean_channel_name
-from init_db import init as init_db
+from service.youtube_api import search_channels
+from init_db import init_db
 from db.models.video import Video
 
 
@@ -21,11 +22,11 @@ origins = [
     "https://yt-text-search.vercel.app"
 ]
 
-init_db()
 
 limiter = Limiter(key_func=get_remote_address)
 app = FastAPI()
 
+init_db(app)
 
 app.add_middleware(
     CORSMiddleware,
@@ -56,6 +57,17 @@ def get_search_channel_data(channel_name: str, text: str, request: Request):
     results = map(json.dumps, search_channel(channel_name, text))
     return EventSourceResponse(results)
 
+
+@app.get("/search_channel_data")
+@limiter.limit("20/minute")
+def get_search_channel_data(channel_name: str, request: Request):
+    channel_name = clean_channel_name(channel_name)
+    logger.info(f"Searching channels {channel_name}")
+    results = search_channel(channel_name)
+    return results
+
+
+# Youtube PubSub
 
 @app.get("/yt_sub")
 async def yt_sub(request: Request):

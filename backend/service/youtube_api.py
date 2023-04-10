@@ -32,7 +32,6 @@ class Video:
 
 
 def get_channel_id(username):
-
     if username.startswith('@'):
         username = username[1:]
 
@@ -64,6 +63,19 @@ def _get_videos(playlists_id: str, page_token: str or None) -> tuple[list[dict],
 
     response = requests.get(url)
     return response.json()
+
+
+def search_channels(search_text: str) -> list[Video]:
+    url = f'https://www.googleapis.com/youtube/v3/search?part=snippet&type=channel&maxResults=10&q={search_text}&key={YOUTUBE_API_KEY}'
+    response = requests.get(url)
+    data_json = response.json()
+    data = data_json['items']
+    return [Video(
+        title=channel['snippet']['title'],
+        published_at=channel['snippet']['publishedAt'],
+        description=channel['snippet']['description'],
+        id=channel['snippet']['channelId']
+    ) for channel in data]
 
 
 class ChannelVideos:
