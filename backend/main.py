@@ -93,7 +93,7 @@ async def yt_sub(request: Request):
     return Response(content=hub_challenge, media_type="text/plain", status_code=200)
 
 
-@app.post("/yt_sub/")
+@app.post("/yt_sub")
 async def sub_callback(request: Request):
     data = await request.body()
     parsed = parse_notification(data)
