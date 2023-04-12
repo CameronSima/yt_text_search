@@ -99,7 +99,7 @@ async def post_sub_callback(request: Request):
     parsed = parse_notification(data)
     title = parsed.get("title")
 
-    existing_video = await Video.get(title=title)
+    existing_video = await Video.exists(title=title)
     if existing_video:
         logger.info(f"Video {title} already exists.")
         return {"status": "ok"}
