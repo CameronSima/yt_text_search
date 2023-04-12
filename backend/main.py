@@ -80,8 +80,8 @@ async def subscribe_channel(channel_id: str, request: Request):
 # Youtube PubSub hooks
 
 
-@app.get("/yt_sub")
-async def yt_sub(request: Request):
+@app.get("/on_sub")
+async def on_subscribe_callback(request: Request):
     params = request.query_params
     hub_topic = params.get("hub.topic")
     hub_challenge = params.get("hub.challenge")
@@ -93,8 +93,8 @@ async def yt_sub(request: Request):
     return Response(content=hub_challenge, media_type="text/plain", status_code=200)
 
 
-@app.post("/yt_sub")
-async def sub_callback(request: Request):
+@app.post("/new_video")
+async def new_video_callback(request: Request):
     data = await request.body()
     parsed = parse_notification(data)
     title = parsed.get("title")
