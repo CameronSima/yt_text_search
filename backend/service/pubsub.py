@@ -20,8 +20,7 @@ def subscribe(channel_id: str):
         'hub.lease_numbers': '',
     }
     response = requests.post(URL, data=data, headers=headers)
-    print(response.status_code)
-    print(response.text)
+    return response.status_code
 
 
 def parse_notification(data: str):
