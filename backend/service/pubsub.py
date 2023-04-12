@@ -3,7 +3,7 @@ import xml.etree.ElementTree as ET
 
 URL = "https://pubsubhubbub.appspot.com/subscribe"
 TOPIC_BASE_URL = "https://www.youtube.com/xml/feeds/videos.xml?channel_id="
-CALLBACK_URL = "https://yttextsearch-production.up.railway.app/yt_sub"
+CALLBACK_URL = "https://yttextsearch-production.up.railway.app/youtube/on_sub"
 
 
 def subscribe(channel_id: str):
