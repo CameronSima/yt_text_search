@@ -38,8 +38,9 @@ def search_video(video_id: str, search_text: str) -> SearchResult:
     )
 
 
-def search_channel(channel_name: str, search_text: str) -> Generator[SearchResult, None, None]:
+async def search_channel(channel_name: str, search_text: str) -> Generator[SearchResult, None, None]:
     channel = ChannelVideos(channel_name)
+    await channel.init()
 
     while channel.next_page_token:
         for video in channel.videos:
@@ -52,4 +53,4 @@ def search_channel(channel_name: str, search_text: str) -> Generator[SearchResul
             except:
                 print('No transcript found')
             # time.sleep(2)
-        channel.get_next_page()
+        await channel.get_next_page()

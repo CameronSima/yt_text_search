@@ -75,7 +75,7 @@ def get_search_channel_data(channel_name: str, request: Request):
 @app.post("/channel/subscribe/")
 @limiter.limit("20/minute")
 async def subscribe_channel(channel_id: str, request: Request):
-    response_code = pubsub.subscribe(channel_id)
+    response_code = await pubsub.subscribe(channel_id)
     return response_code
 
 # Youtube PubSub hooks

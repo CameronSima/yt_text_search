@@ -1,12 +1,12 @@
-import requests
 import xml.etree.ElementTree as ET
+import service.http_client as http_client
 
 URL = "https://pubsubhubbub.appspot.com/subscribe"
 TOPIC_BASE_URL = "https://www.youtube.com/xml/feeds/videos.xml?channel_id="
 CALLBACK_URL = "https://yttextsearch-production.up.railway.app/youtube/on_sub"
 
 
-def subscribe(channel_id: str):
+async def subscribe(channel_id: str):
     headers = {
         'Content-Type': 'application/x-www-form-urlencoded',
     }
@@ -19,7 +19,7 @@ def subscribe(channel_id: str):
         'hub.secret': '',
         'hub.lease_numbers': '',
     }
-    response = requests.post(URL, data=data, headers=headers)
+    response = await http_client.post(URL, data=data, headers=headers)
     return response.status_code
 
 

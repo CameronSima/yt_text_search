@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-import requests
+import service.http_client as http_client
 import re
 
 from service.transcript import TextSegment
@@ -31,12 +31,12 @@ class Video:
         }
 
 
-def get_channel_id(username):
+async def get_channel_id(username):
     if username.startswith('@'):
         username = username[1:]
 
     url = f"https://www.youtube.com/@{username}"
-    page_source = requests.get(url).text
+    page_source = await http_client.get(url).text
     match = re.search(r'"externalId":"([\w-]+)"', page_source)
 
     if match:
@@ -46,28 +46,28 @@ def get_channel_id(username):
         print('External ID not found')
 
 
-def _get_channel_playlist_id(channel_name: str) -> list[dict]:
+async def _get_channel_playlist_id(channel_name: str) -> list[dict]:
     url = f"https://www.googleapis.com/youtube/v3/channels?part=contentDetails&forUsername={channel_name}&key={YOUTUBE_API_KEY}"
-    response = requests.get(url)
+    response = await http_client.get(url)
     data_json = response.json()
     print(data_json)
     data = data_json['items']
     return data[0]['contentDetails']['relatedPlaylists']['uploads']
 
 
-def _get_videos(playlists_id: str, page_token: str or None) -> tuple[list[dict], str]:
+async def _get_videos(playlists_id: str, page_token: str or None) -> tuple[list[dict], str]:
     url = f"https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&maxResults={MAX_RESULTS}&playlistId={playlists_id}&key={YOUTUBE_API_KEY}"
 
     if page_token:
         url += f"&pageToken={page_token}"
 
-    response = requests.get(url)
+    response = await http_client.get(url)
     return response.json()
 
 
-def search_channels(search_text: str) -> list[Video]:
+async def search_channels(search_text: str) -> list[Video]:
     url = f'https://www.googleapis.com/youtube/v3/search?part=snippet&type=channel&maxResults=10&q={search_text}&key={YOUTUBE_API_KEY}'
-    response = requests.get(url)
+    response = await http_client.get(url)
     data_json = response.json()
     data = data_json['items']
     return [Video(
@@ -87,15 +87,17 @@ class ChannelVideos:
     def __init__(self, channel_name: str):
         self.channel_name = channel_name
         self.next_page_token = None
-        self.channel_playlist_id = _get_channel_playlist_id(self.channel_name)
-        self.videos = self.get_channel_videos()
 
-    def get_next_page(self) -> list[Video]:
-        new_vids = self.get_channel_videos(self.next_page_token)
+    async def init(self):
+        self.channel_playlist_id = await _get_channel_playlist_id(self.channel_name)
+        self.videos = await self.get_channel_videos()
+
+    async def get_next_page(self) -> list[Video]:
+        new_vids = await self.get_channel_videos(self.next_page_token)
         self.videos = new_vids
 
-    def get_channel_videos(self, page_token=None) -> tuple[list[Video], str]:
-        videos_json = _get_videos(self.channel_playlist_id, page_token)
+    async def get_channel_videos(self, page_token=None) -> tuple[list[Video], str]:
+        videos_json = await _get_videos(self.channel_playlist_id, page_token)
         self.next_page_token = videos_json.get('nextPageToken')
         videos = videos_json.get('items')
 
