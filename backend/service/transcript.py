@@ -1,4 +1,3 @@
-import math
 from typing import TypedDict
 from dataclasses import dataclass
 from service.match import Match, build_match
@@ -70,6 +69,7 @@ def search_transcript(transcript: _Transcript, text: str) -> list[Match]:
             if segment.i_start <= i_start <= segment.i_end or \
                     segment.i_start <= i_end <= segment.i_end:
                 matching_segments.append(segment)
+
         match = build_match(text, matching_segments)
         matches.append(match)
     return matches

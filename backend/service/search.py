@@ -1,3 +1,4 @@
+import asyncio
 from typing import Generator
 from dataclasses import dataclass
 from youtube_transcript_api import YouTubeTranscriptApi
@@ -27,19 +28,28 @@ def search_video(video_id: str, search_text: str) -> SearchResult:
     transcript = build_transcript(raw_segments)
     matches = search_transcript(transcript, search_text)
 
-    # transcript = Transcript(video_id)
-    # transcript.process()
-    # matches = transcript.search(search_text)
     return SearchResult(
         search_text=search_text,
-        video=Video(video_id, title='', description='', published_at=''),
+        video=Video(video_id, title='', description='',
+                    published_at='', channel_id=''),
         matches=matches,
         num_results=len(matches)
     )
 
 
+async def get_videos_from_channel(channel_id: str) -> Generator[Video, None, None]:
+    channel = ChannelVideos(channel_id=channel_id)
+    await channel.init()
+
+    while channel.next_page_token:
+        for video in channel.videos:
+            print(video)
+            yield video
+        await channel.get_next_page()
+
+
 async def search_channel(channel_name: str, search_text: str) -> Generator[SearchResult, None, None]:
-    channel = ChannelVideos(channel_name)
+    channel = ChannelVideos(channel_name=channel_name)
     await channel.init()
 
     while channel.next_page_token:

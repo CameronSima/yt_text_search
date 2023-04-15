@@ -25,7 +25,8 @@ def init_db(app):
 
 async def generate_schema():
     # Generate the schema
+    await init()
     await Tortoise.generate_schemas()
 
 if __name__ == '__main__':
-    run_async(init())
+    run_async(generate_schema())
