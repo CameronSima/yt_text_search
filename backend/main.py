@@ -129,12 +129,12 @@ async def post_sub_callback(request: Request):
     logger.info(parsed)
 
     if not await Video.exists(title=parsed["title"]):
+        segments = []
         try:
             segments = YouTubeTranscriptApi.get_transcript(
                 parsed["yt_video_id"])
         except Exception as e:
-            segments = []
-            logger.error(str(e))
+            logger.info(str(e))
 
     await Video.create(**parsed, text_segments=segments)
     return {"status": "ok"}
