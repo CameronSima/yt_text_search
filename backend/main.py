@@ -1,7 +1,8 @@
 import json
-from fastapi import FastAPI, HTTPException, Request, Response
+from fastapi import BackgroundTasks, FastAPI, HTTPException, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
 from sse_starlette.sse import EventSourceResponse
+from youtube_transcript_api import YouTubeTranscriptApi
 from youtube_transcript_api._errors import TranscriptsDisabled
 from slowapi.errors import RateLimitExceeded
 from slowapi import Limiter, _rate_limit_exceeded_handler
@@ -9,13 +10,13 @@ from slowapi.util import get_remote_address
 from fastapi_cache import FastAPICache
 from fastapi_cache.backends.inmemory import InMemoryBackend
 from fastapi_cache.decorator import cache
-from youtube_transcript_api import YouTubeTranscriptApi
-from service.search import search_video, search_channel, get_videos_from_channel
+from background_tasks import save_videos_from_channel
+from service.search import search_video, search_channel
 from service import logger
 from service import pubsub
 from service.pubsub import parse_notification
 from service.utils import clean_video_id, clean_channel_name
-from service.youtube_api import search_channels
+from service.youtube_api import ChannelVideos, search_channels
 from init_db import init_db
 from db.models.video import Video, create_from_yt_api, yt_video_to_video
 
@@ -73,18 +74,25 @@ async def get_search_channel_data(channel_name: str, text: str, request: Request
 
 @app.get("/channel/videos")
 @limiter.limit("20/minute")
-async def get_channel_videos(channel_id: str, request: Request):
+async def get_channel_videos(channel_id: str, request: Request, background_tasks: BackgroundTasks):
     logger.info(f"Getting videos for channel {channel_id}")
 
+    channel = ChannelVideos(channel_id)
+    await channel.init()
     db_videos = await Video.filter(yt_channel_id=channel_id)
-    # print("db videos")
-    # print(db_videos)
-    # api_videos = [yt_video_to_video(video) async for video in get_videos_from_channel(channel_id)]
-    # print("api videos")
-    # print(api_videos)
-    # unsaved_videos = [video for video in api_videos if video not in db_videos]
-    # print("unsaved videos")
-    # print(unsaved_videos)
+
+    if len(db_videos) == channel.total_channel_videos:
+        status_code = 200
+    else:
+        status_code = 202
+        background_tasks.add_task(save_videos_from_channel, channel, db_videos)
+
+    return {
+        "status_code": status_code,
+        "message": f"Found {len(db_videos)} videos out of {channel.total_channel_videos}. Fetching the rest in the background.",
+        "total_channel_videos": channel.total_channel_videos,
+        "videos": db_videos
+    }
 
     # return api_videos
     return db_videos
@@ -129,15 +137,15 @@ async def post_sub_callback(request: Request):
     logger.info(parsed)
 
     if not await Video.exists(title=parsed["title"]):
-        segments = []
         try:
             segments = YouTubeTranscriptApi.get_transcript(
                 parsed["yt_video_id"])
         except Exception as e:
             logger.info(str(e))
-
-    await Video.create(**parsed, text_segments=segments)
-    return {"status": "ok"}
+            segments = []
+        finally:
+            await Video.create(**parsed, text_segments=segments)
+        return {"status": "ok"}
 
 
 @ app.get("/health")

@@ -128,6 +128,7 @@ class ChannelVideos:
     channel_id: str
     channel_playlist_id: str
     next_page_token: str
+    total_channel_videos: int
     videos: list[Video]
 
     def __init__(self, channel_id):
@@ -138,6 +139,12 @@ class ChannelVideos:
         self.channel_playlist_id = await get_playlist_id_from_channel_id(self.channel_id)
         self.videos = await self.get_channel_videos()
 
+    async def videos_generator(self):
+        while self.next_page_token:
+            for video in self.videos:
+                yield video
+            await self.get_next_page()
+
     async def get_next_page(self) -> list[Video]:
         new_vids = await self.get_channel_videos(self.next_page_token)
         self.videos = new_vids
@@ -145,4 +152,5 @@ class ChannelVideos:
     async def get_channel_videos(self, page_token=None) -> tuple[list[Video], str]:
         results = await get_videos_from_playlist_id(self.channel_id, page_token)
         self.next_page_token = results.get('nextPageToken')
+        self.total_channel_videos = results.get('totalResults')
         return results.get('videos')

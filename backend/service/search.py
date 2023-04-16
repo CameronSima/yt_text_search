@@ -37,17 +37,6 @@ def search_video(video_id: str, search_text: str) -> SearchResult:
     )
 
 
-async def get_videos_from_channel(channel_id: str) -> Generator[Video, None, None]:
-    channel = ChannelVideos(channel_id=channel_id)
-    await channel.init()
-
-    while channel.next_page_token:
-        for video in channel.videos:
-            print(video)
-            yield video
-        await channel.get_next_page()
-
-
 async def search_channel(channel_name: str, search_text: str) -> Generator[SearchResult, None, None]:
     channel = ChannelVideos(channel_name=channel_name)
     await channel.init()
