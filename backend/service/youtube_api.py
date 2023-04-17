@@ -109,6 +109,7 @@ async def get_videos_from_playlist_id(playlists_id: str, page_token: str or None
     #             channel_id=video['snippet']['channelId'],
     #         ))
 
+    print("PAGE TOKEN: ", data_json.get('nextPageToken', "None"))
     return {
         'videos': videos,
         'pagedResults': len(videos),

@@ -1,5 +1,6 @@
 import json
 from fastapi import BackgroundTasks, FastAPI, HTTPException, Request, Response
+from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from sse_starlette.sse import EventSourceResponse
 from youtube_transcript_api import YouTubeTranscriptApi
@@ -18,7 +19,8 @@ from service.pubsub import parse_notification
 from service.utils import clean_video_id, clean_channel_name
 from service.youtube_api import ChannelVideos, search_channels
 from init_db import init_db
-from db.models.video import Video, create_from_yt_api, yt_video_to_video
+from db.models.video import Video
+from tasks import huey, save_videos, test_task
 
 
 origins = [
@@ -81,21 +83,22 @@ async def get_channel_videos(channel_id: str, request: Request, background_tasks
     await channel.init()
     db_videos = await Video.filter(yt_channel_id=channel_id)
 
-    if len(db_videos) == channel.total_channel_videos:
-        status_code = 200
-    else:
+    if len(db_videos) < channel.total_channel_videos:
         status_code = 202
-        background_tasks.add_task(save_videos_from_channel, channel, db_videos)
+        message = f"Found {len(db_videos)} videos out of {channel.total_channel_videos}. Fetching the rest in the background.",
+        res = save_videos(channel, db_videos)
+        task_id = res.id
+    else:
+        status_code = 200
+        message = f"Found {len(db_videos)} videos."
 
     return {
         "status_code": status_code,
-        "message": f"Found {len(db_videos)} videos out of {channel.total_channel_videos}. Fetching the rest in the background.",
+        "status_url": f"http://localhost:8000/tasks?task_id={task_id}",
+        "message": message,
         "total_channel_videos": channel.total_channel_videos,
         "videos": db_videos
     }
-
-    # return api_videos
-    return db_videos
 
 
 @app.get("/channel/search")
@@ -113,6 +116,13 @@ def get_search_channel_data(channel_name: str, request: Request):
 async def subscribe_channel(channel_id: str, request: Request):
     response_code = await pubsub.subscribe(channel_id)
     return response_code
+
+
+@app.get("/tasks")
+def get_task_status(task_id: str):
+    results = huey.result(task_id)
+    print(results)
+    return results
 
 # Youtube PubSub hooks
 
