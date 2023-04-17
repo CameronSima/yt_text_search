@@ -15,7 +15,7 @@ function SearchVideo() {
 
   return (
     <div className="flex flex-col justify-around" style={{ height: "100%" }}>
-      <h1 className="text-4xl text-center text-white">
+      <h1 className="text-4xl text-center text-emerald-300">
         Search for text in a youtube video
       </h1>
       <form className="flex flex-col gap-y-4" action="/search_video">

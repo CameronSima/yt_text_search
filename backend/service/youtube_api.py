@@ -36,6 +36,7 @@ class Channel:
     id: str
     title: str
     identifier: str
+    thumbnail_url: str
     description: str
     published_at: str
 
@@ -98,18 +99,6 @@ async def get_videos_from_playlist_id(playlists_id: str, page_token: str or None
 
     videos = [map_video(video) for video in data]
 
-    # videos = []
-    # for video in data:
-    #     videos.append(
-    #         Video(
-    #             id=video['id'],
-    #             title=video['snippet']['title'],
-    #             description=video['snippet']['description'],
-    #             published_at=video['snippet']['publishedAt'],
-    #             channel_id=video['snippet']['channelId'],
-    #         ))
-
-    print("PAGE TOKEN: ", data_json.get('nextPageToken', "None"))
     return {
         'videos': videos,
         'pagedResults': len(videos),
@@ -119,14 +108,17 @@ async def get_videos_from_playlist_id(playlists_id: str, page_token: str or None
 
 
 async def search_channels(search_text: str) -> list[Channel]:
-    url = f'https://www.googleapis.com/youtube/v3/search?part=snippet&type=channel&maxResults=10&q={search_text}&key={YOUTUBE_API_KEY}'
+    url = f'https://www.googleapis.com/youtube/v3/search?part=snippet&type=channel&maxResults=3&q={search_text}&key={YOUTUBE_API_KEY}'
     response = await http_client.get(url)
     data_json = response.json()
     data = data_json['items']
+    print(data)
     return [Channel(
         title=channel['snippet']['title'],
         published_at=channel['snippet']['publishedAt'],
         description=channel['snippet']['description'],
+        thumbnail_url=channel['snippet']['thumbnails']['default']['url'],
+        identifier=channel['snippet']['channelId'],
         id=channel['snippet']['channelId']
     ) for channel in data]
 

@@ -103,10 +103,10 @@ async def get_channel_videos(channel_id: str, request: Request, background_tasks
 @app.get("/channel/search")
 @limiter.limit("20/minute")
 @cache(expire=60 * 60 * 24)
-def get_search_channel_data(channel_name: str, request: Request):
+async def get_search_channel_data(channel_name: str, request: Request):
     channel_name = clean_channel_name(channel_name)
     logger.info(f"Searching channels {channel_name}")
-    results = search_channels(channel_name)
+    results = await search_channels(channel_name)
     return results
 
 

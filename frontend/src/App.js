@@ -3,7 +3,7 @@ import "./App.css";
 
 function App() {
   return (
-    <div className="bg-gray-700 h-screen flex flex-col">
+    <div className="bg-gray-800 h-screen flex flex-col">
       <Link to="/">
         <div className="p-8 cursor-pointer">
           <span className="text-xl text-white hover:underline">Home</span>

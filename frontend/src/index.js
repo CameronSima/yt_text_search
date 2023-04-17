@@ -7,6 +7,7 @@ import reportWebVitals from "./reportWebVitals";
 import SearchVideo from "./pages/SearchVideo";
 import VideoResults from "./pages/VideoResults";
 import ChannelResults from "./pages/ChannelResults";
+import SearchChannel from "./pages/SearchChannel";
 
 const router = createBrowserRouter([
   {
@@ -16,6 +17,10 @@ const router = createBrowserRouter([
       {
         path: "",
         element: <SearchVideo />,
+      },
+      {
+        path: "channel",
+        element: <SearchChannel />,
       },
       {
         path: "search_video",
