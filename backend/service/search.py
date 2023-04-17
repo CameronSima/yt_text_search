@@ -4,6 +4,7 @@ from dataclasses import dataclass
 from youtube_transcript_api import YouTubeTranscriptApi
 from service.transcript import Match, _Transcript, build_transcript, search_transcript
 from .youtube_api import ChannelVideos, Video
+from db.models.video import Video as DBVideo
 
 
 @dataclass
@@ -22,12 +23,29 @@ class SearchResult:
         }
 
 
+async def search_video_from_db_or_api(video_id: str, search_text: str) -> SearchResult:
+    existing_video = await DBVideo.get_or_none(yt_video_id=video_id)
+    if existing_video and existing_video.text_segments:
+        transcript = build_transcript(existing_video.text_segments)
+        matches = search_transcript(transcript, search_text)
+        return SearchResult(
+            search_text=search_text,
+            video=Video(video_id, title=existing_video.title,
+                        description=existing_video.description,
+                        published_at=existing_video.published_at,
+                        channel_id=existing_video.yt_channel_id),
+            matches=matches,
+            num_results=len(matches)
+        )
+    else:
+        return search_video(video_id, search_text)
+
+
 def search_video(video_id: str, search_text: str) -> SearchResult:
     """Search a video for a search text"""
     raw_segments = YouTubeTranscriptApi.get_transcript(video_id)
     transcript = build_transcript(raw_segments)
     matches = search_transcript(transcript, search_text)
-
     return SearchResult(
         search_text=search_text,
         video=Video(video_id, title='', description='',

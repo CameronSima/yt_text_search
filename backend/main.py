@@ -12,7 +12,7 @@ from fastapi_cache import FastAPICache
 from fastapi_cache.backends.inmemory import InMemoryBackend
 from fastapi_cache.decorator import cache
 from background_tasks import save_videos_from_channel
-from service.search import search_video, search_channel
+from service.search import search_video, search_channel, search_video_from_db_or_api
 from service import logger
 from service import pubsub
 from service.pubsub import parse_notification
@@ -54,7 +54,7 @@ def get_search_video(video_id: str, text: str, request: Request):
     video_id = clean_video_id(video_id)
     logger.info({"video_id": video_id, "text": text})
     try:
-        results = search_video(video_id, text)
+        results = search_video_from_db_or_api(video_id, text)
         return results.json()
     except TranscriptsDisabled:
         logger.error(str(e))
