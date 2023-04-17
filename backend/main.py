@@ -1,6 +1,5 @@
 import json
 from fastapi import BackgroundTasks, FastAPI, HTTPException, Request, Response
-from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from sse_starlette.sse import EventSourceResponse
 from youtube_transcript_api import YouTubeTranscriptApi
@@ -9,10 +8,9 @@ from slowapi.errors import RateLimitExceeded
 from slowapi import Limiter, _rate_limit_exceeded_handler
 from slowapi.util import get_remote_address
 from fastapi_cache import FastAPICache
-from fastapi_cache.backends.inmemory import InMemoryBackend
+from fastapi_cache.backends.redis import RedisBackend
 from fastapi_cache.decorator import cache
-from background_tasks import save_videos_from_channel
-from service.search import search_video, search_channel, search_video_from_db_or_api
+from service.search import search_channel, search_video_from_db_or_api
 from service import logger
 from service import pubsub
 from service.pubsub import parse_notification
@@ -20,7 +18,8 @@ from service.utils import clean_video_id, clean_channel_name
 from service.youtube_api import ChannelVideos, search_channels
 from init_db import init_db
 from db.models.video import Video
-from tasks import huey, save_videos, test_task
+from tasks import huey, save_videos
+from constants import REDIS_CONNECTION_STRING
 
 
 origins = [
@@ -165,4 +164,7 @@ def health():
 
 @app.on_event("startup")
 async def startup():
-    FastAPICache.init(InMemoryBackend(), prefix="fastapi-cache")
+    FastAPICache.init(
+        RedisBackend(REDIS_CONNECTION_STRING),
+        prefix="fastapi-cache"
+    )
