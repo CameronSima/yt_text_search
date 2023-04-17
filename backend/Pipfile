@@ -2,5 +2,5 @@
 test = "python -m pytest"
 
 "start:dev" = "uvicorn main:app --reload"
-start = "uvicorn main:app --port 8000 --host 0.0.0.0"
+start = "uvicorn main:app --port $PORT --host 0.0.0.0"
 "start:huey" = "huey_consumer.py tasks.huey -k process -w 2"
